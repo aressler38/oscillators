@@ -25,6 +25,8 @@ define([
         var originalEvent = null;
         var offsets = [0, 0];
         var buffer = null;
+
+        // TODO: deal with the config object...
         if ( config.draggable ) {
             this.el.addEventListener("mousedown", function (event) {
                 buffer = window.getComputedStyle(this);

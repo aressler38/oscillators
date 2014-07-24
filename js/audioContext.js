@@ -1,1 +1,7 @@
-define(function () { return AudioContext ? new AudioContext() : new webkitAudioContext(); });
+define(function () { 
+    if (!window.AudioContext && !window.webkitAudioContext) {
+        alert("Your browser doesn't support the WebAudio standard. Maybe you need to activate it in your settings/flags.");
+        return 1;
+    }
+    else { return window.AudioContext ? new window.AudioContext() : new window.webkitAudioContext(); }
+});
