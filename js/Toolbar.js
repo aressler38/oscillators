@@ -27,12 +27,10 @@ define(["Templates", "configurer"], function(Templates, configurer) {
     }
 
     Toolbar.prototype.toggle = function () {
-        console.log(this.config.hidden);
         if (this.config.hidden) {
             this.el.classList.remove("hide"); 
         } else { this.el.classList.add("hide"); }
         this.config.hidden = !this.config.hidden;
-        console.log(this.config.hidden);
         return this;
     };
 
