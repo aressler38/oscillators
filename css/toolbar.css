@@ -18,7 +18,6 @@
 .toolbar .close {
     position: absolute;
     top: 0px;
-    left: 0px;
     box-shadow: 1px 1px 1px black, inset 1px 1px black;
     height: 24pt;
     font-size: 24pt;
@@ -42,4 +41,7 @@
 .toolbar.hide .open {
     left: -100px;
     opacity: 1;
+}
+.toolbar .close {
+    right: 0px;
 }
