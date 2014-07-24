@@ -22,5 +22,17 @@ define([
     app.appendChild(tools.el);
 
     window.tools = tools;
-    return void 0;
+
+
+    // resize the app frame on resize
+    window.addEventListener("resize", renderApp);
+
+    function renderApp (event) {
+        app.style.width=(window.innerWidth-20) + "px";
+        app.style.height=(window.innerHeight-20) + "px";
+    }
+
+    renderApp();
+
+    return void 0; //OK!
 });
