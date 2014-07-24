@@ -1,30 +1,32 @@
 define([
     "Templates",
-    "utils/extend",
+    "configurer",
     "audioContext"
-], function (Templates, extend, audioContext) {
+], function (Templates, configurer, audioContext) {
+
+    const COMPONENT_DEFAULTS = {
+        el: null,
+        type: null,
+        draggable: true
+    };
 
     /**
      * @constructor
      * Base class for components, sets up the base template and  
      */
     function Component (config) {
-        config = extend({
-            el: null,
-            type: null,
-            draggable: true
-        }, config);
+        const that = this;
+        config = configurer(COMPONENT_DEFAULTS, config);
         
         this.node = (config.type !== null) ? audioContext["create"+config.type]() : null;
-        this.docfrag = Templates("component");
-        this.el = this.docfrag.querySelector("*");
+        var docfrag = Templates("component");
+        this.el = docfrag.querySelector("div");
 
         var originalEvent = null;
         var offsets = [0, 0];
         var buffer = null;
         if ( config.draggable ) {
             this.el.addEventListener("mousedown", function (event) {
-                //console.debug("mousedown");
                 buffer = window.getComputedStyle(this);
                 buffer = buffer.transform.replace(/matrix|\(|\)/g, "").split(",");
                 offsets[0] = parseInt(buffer[4]) - event.clientX;
@@ -34,16 +36,18 @@ define([
             });
         }
 
+        /* local functions */
+
+        // TODO: touch handlers
+
         function removeMouseDragListener (event) {
-            //console.debug("mouseup");
             document.removeEventListener("mousemove", handleMouseDrag);
             document.removeEventListener("mouseup", removeMouseDragListener);
         }
-        var that = this;
         function handleMouseDrag (event) {
-            var y = offsets[1] + event.clientY + "px";
-            var x = offsets[0] + event.clientX + "px";
-            that.el.style.transform = "translate("+x+","+y+")";
+            const y = offsets[1] + event.clientY + "px";
+            const x = offsets[0] + event.clientX + "px";
+            that.el.style.transform = "translate3d("+x+","+y+", 0)";
         }
         
         return this;
@@ -52,11 +56,9 @@ define([
     Component.prototype.connect = function(node) {
         this.node.connect(node);
     };
-
     Component.prototype.disconnect = function() {
         this.node.disconnect();
     };
-
     Component.prototype.start = function() {
         this.node.start();
     };

@@ -1,0 +1,45 @@
+.toolbar {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 200px;
+    height: calc(100% - 56px);
+    transition: all 0.168s;
+    box-shadow: 3px 2px 2px 1px grey, inset 0px 0px 2px grey, inset 0px 0px 1px black;
+    padding: 16px;
+    margin: 10px;
+    z-index: 3;
+    background: honeydew;
+}
+.toolbar.hide {
+    right: -300px;
+}
+.toolbar .open, 
+.toolbar .close {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    box-shadow: 1px 1px 1px black, inset 1px 1px black;
+    height: 24pt;
+    font-size: 24pt;
+    z-index: 1;
+    cursor: pointer;
+    background: ghostwhite;
+}
+.toolbar .close {
+    margin: 4px;
+}
+.toolbar div[class*="icon"]:hover {
+    background: rgba(200, 100, 50, 0.3);
+}
+.toolbar .open {
+    top: 0px;
+    left: 1000px;
+    transition: all 0.318s;
+    opacity: 0;
+    z-index: 0;
+}
+.toolbar.hide .open {
+    left: -100px;
+    opacity: 1;
+}

@@ -1,13 +1,13 @@
 define([
 "text!templates/component.html",
-"text!templates/toolBar.html"
-], function(component, toolBar) {
+"text!templates/toolbar.html"
+], function(component, toolbar) {
 
     // IMPORT ALL TEMPLATES, WRAP THEM IN <template>
 
     const templates = {
         component: component,
-        toolBar : toolBar
+        toolbar : toolbar
     };
     const domParser = new DOMParser();
     const templateGroup = document.createElement("div");
@@ -31,6 +31,7 @@ define([
         return document.importNode(template.content, true);
     };
 
+    /** @deprecated */
     Templates.names = (function() { var n=[]; for (var t in templates) n.push(t); return n; })();
 
     return Templates;
