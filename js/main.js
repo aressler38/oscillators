@@ -15,7 +15,10 @@ define([
     var body = document.querySelector("body");
 
     var tools = new Toolbar();
-    var component = new Component();
+    var component = new Component({
+        type: "oscillator",
+        position: [100, 100]
+    });
 
     app.appendChild(component.el);
 
