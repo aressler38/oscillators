@@ -3,5 +3,10 @@ define(function () {
         alert("Your browser doesn't support the WebAudio standard. Maybe you need to activate it in your settings/flags.");
         return 1;
     }
-    else { return window.AudioContext ? new window.AudioContext() : new window.webkitAudioContext(); }
+    else { 
+        console.debug("exporting audioContext as window.a");
+        return (
+        window.a = window.AudioContext ? new window.AudioContext() : new window.webkitAudioContext() , window.a 
+        );
+    }
 });

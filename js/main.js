@@ -23,7 +23,6 @@ define([
 
     window.tools = tools;
 
-
     // resize the app frame on resize
     window.addEventListener("resize", renderApp);
 
