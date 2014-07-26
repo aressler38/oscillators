@@ -8,33 +8,28 @@ require.config({
 // now define the `main` module
 define([
     "Component",
-    "Toolbar"
-],function(Component, Toolbar) {
+    "Toolbar",
+    "App"
+],function(Component, Toolbar, App) {
 
-    var app = document.getElementById("app");
-    var body = document.querySelector("body");
-
-    var tools = new Toolbar();
-    var component = new Component({
+    var body       = document.querySelector("body");
+    var app        = new App();
+    var tools      = new Toolbar();
+    var oscillator = new Component({
         type: "oscillator",
         position: [100, 100]
     });
+    var destination = new Component({
+        type: "destination",
+        position: [300, 300]
+    });
 
-    app.appendChild(component.el);
+    var gain = new Component({
+        type: "gain",
+        position: [175, 200]
+    });
 
-    app.appendChild(tools.el);
-
-    window.tools = tools;
-
-    // resize the app frame on resize
-    window.addEventListener("resize", renderApp);
-
-    function renderApp (event) {
-        app.style.width=(window.innerWidth-20) + "px";
-        app.style.height=(window.innerHeight-20) + "px";
-    }
-
-    renderApp();
+    app.add(oscillator, tools, gain, destination);
 
     return void 0; //OK!
 });
