@@ -31,19 +31,20 @@ define([
             new DragHandler(this.el, translate3d);
         }
         translate3d(config.position[0]+"px", config.position[1]+"px", 0);
-        if (!bool) { // type isn't null
+        bool = config.type === "destination" ? true : false;
+        if ( !bool ) { // type isn't null
             config.type=config.type[0].toUpperCase() + config.type.substring(1);
-            this.el.classList.add(config.type.toLowerCase());
             this.node = audioContext["create"+config.type]();
         }
         else {
             this.node = null;
         }
+        this.el.classList.add(config.type.toLowerCase());
 
         // don't allow dragging when touching the handles
         [this.el.querySelector(".in"), this.el.querySelector(".out")].forEach(function (el, i, self) {
-            el.addEventListener("mousedown", preventAndStop);
-            el.addEventListener("touchstart", preventAndStop);
+            el.addEventListener("mousedown", stopEvent);
+            el.addEventListener("touchstart", stopEvent);
         });
 
         /* local functions */
@@ -52,8 +53,7 @@ define([
             this.style.transform = "translate3d("+x+","+y+","+z+")";
         }
 
-        function preventAndStop (event) {
-            event.preventDefault();
+        function stopEvent (event) {
             event.stopPropagation();
         }
         

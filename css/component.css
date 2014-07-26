@@ -54,3 +54,16 @@
 
 /* SPECIAL COMPONENT TYPE RULES */
 .component.oscillator .in { display: none; }
+.component.destination .out { display: none; }
+.component.destination:after {
+    position: absolute;
+    top: 8px;
+    right: -16px;
+    width: 0px; height: 10px;
+    border-top: 12px solid transparent; 
+    border-bottom: 12px solid transparent;
+    border-right: 16px solid black;
+    content: " ";
+}
+
+

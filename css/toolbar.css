@@ -30,7 +30,7 @@
     margin: 4px;
 }
 .toolbar div[class*="icon"]:hover {
-    background: rgba(200, 100, 50, 0.3);
+    background: rgba(255, 225, 50, 0.9);
 }
 .toolbar .open {
     top: 0px;
@@ -40,6 +40,7 @@
     transition: all 0.318s;
     opacity: 0;
     z-index: 0;
+    background: orange;
 }
 .toolbar.hide .open {
     transform: translate3d(-100px, 0, 0);
@@ -47,4 +48,5 @@
 }
 .toolbar .close {
     right: 0px;
+    background: orange;
 }
