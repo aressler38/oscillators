@@ -32,7 +32,6 @@ define(function () {
             offsets[1] = parseInt(buffer[5]) - y;
             document.addEventListener("mouseup", removeMouseDragListener);
             document.addEventListener("mousemove", handleMouseDrag);
-            console.log( x, y);
             start.call(el, x,y,0, event);
         });
 
