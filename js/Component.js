@@ -30,7 +30,7 @@ define([
         if ( config.draggable ) {
             new DragHandler(this.el, translate3d);
         }
-        translate3d(config.position[0]+"px", config.position[1]+"px", 0);
+        translate3d.apply(this, config.position.concat([0]));
         bool = config.type === "destination" ? true : false;
         if ( !bool ) { // type isn't null
             config.type=config.type[0].toUpperCase() + config.type.substring(1);
@@ -50,7 +50,7 @@ define([
         /* local functions */
 
         function translate3d (x, y, z) {
-            this.style.transform = "translate3d("+x+","+y+","+z+")";
+            this.style.transform = "translate3d("+x+"px,"+y+"px,"+z+"px)";
         }
 
         function stopEvent (event) {

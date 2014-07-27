@@ -1,10 +1,14 @@
-define(function() {
+define(["DragHandler", "Component"], function (DragHandler, Component) {
 
     const LAYOUT = {
-        margin: 20
+        margin: 10 
     };
 
     var register = null;
+
+    if ( !window.requestAnimationFrame ) {
+        alert ("Error: you're missing window.requestAnimationFrame");
+    }
 
     /**
      * @constructor
@@ -14,6 +18,7 @@ define(function() {
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
         this.el.appendChild(this.canvas);
+        this.components = { length: 0 };
 
         var renderApp = function (event) {
             var appStyle = window.getComputedStyle(this.el);
@@ -25,9 +30,48 @@ define(function() {
 
         // resize the app frame on resize
         window.addEventListener("resize", renderApp);
-        return renderApp();
+
+        renderApp(); // render immediately
     }
 
+    /**
+     * @private
+     */
+    function _addComponent (component) {
+        this.components.length++;
+        var hash = this.components.length;
+        this.components[hash] = component;
+        component.el.dataset.hash = hash
+        bindComponentEvents.call(this, component.el);
+        this.el.appendChild(component.el);
+    }
+
+    /**
+     * @private
+     */
+    function bindComponentEvents (el) {
+        var that = this;
+        var _in = el.querySelector(".in");
+        var out = el.querySelector(".out");
+        new DragHandler(_in, drag, start, stop);
+        new DragHandler(out, drag, start, stop);
+        function drag (xrel, yrel, z, x, y) {
+            //console.debug("DRAG")
+            that.ctx.lineTo(x-LAYOUT.margin, y-LAYOUT.margin);
+            that.ctx.stroke();
+        }
+        function start (x, y, z, event) {
+            //console.debug("START")
+            that.ctx.beginPath();
+            that.ctx.moveTo(x-LAYOUT.margin, y-LAYOUT.margin);
+        }
+        function stop (x, y, z, event) {
+            //console.debug("STOP")
+            that.ctx.stroke();
+        }
+    }   
+
+    
     // =========
     // PROTOTYPE
     // =========
@@ -43,8 +87,8 @@ define(function() {
      * append components to the app
      */
     App.prototype.add = function () {
-        for (var index in arguments)
-            this.el.appendChild(arguments[index].el);
+        for (var index in arguments) 
+            _addComponent.call(this, arguments[index]);
     };
     App.prototype.remove = function (component) {
         this.el.removeChild(component.el);
