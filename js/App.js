@@ -1,11 +1,15 @@
-define(["DragHandler", "Component"], function (DragHandler, Component) {
+define([
+    "DragHandler", 
+    "Component", 
+    "Components"
+], function (DragHandler, Component, Components) {
 
     const RENDER_QUEUE = [];
     const LAYOUT = {
-        margin: 10 
+        margin: 10, 
+        marginWide: 20, 
+        marginTall: 20
     };
-
-    var register = null;
 
     if ( !window.requestAnimationFrame ) {
         alert ("Error: you're missing window.requestAnimationFrame");
@@ -20,6 +24,7 @@ define(["DragHandler", "Component"], function (DragHandler, Component) {
         window.requestAnimationFrame(step);
     }
 
+
     /**
      * @constructor
      */
@@ -28,19 +33,31 @@ define(["DragHandler", "Component"], function (DragHandler, Component) {
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
         this.el.appendChild(this.canvas);
-        this.components = { length: 0 };
+        this.components = new Components();
 
 
         var renderApp = function (event) {
             var appStyle = window.getComputedStyle(this.el);
-            this.el.style.width=(window.innerWidth-20) + "px";
-            this.el.style.height=(window.innerHeight-20) + "px";
+            this.el.style.width=(window.innerWidth - LAYOUT.marginWide) + "px";
+            this.el.style.height=(window.innerHeight - LAYOUT.marginTall) + "px";
             this.canvas.width = parseInt(appStyle.width);
             this.canvas.height = parseInt(appStyle.height);
         }.bind( this );
 
         this.render = function () {
-        //    this.canvas.width = this.canvas.width;
+            var _components = this.components.list;
+            var i = 0, j=0;
+            var len = _components.length;
+            var _tolen = _components.length;
+            this.components.computeStyles();
+            for (; i<len; i++) {
+                // we only need to handle the `to` connections
+                if ( _tolen = _components[i].connections.to.length ) {
+                    for (j=0; j<_tolen; j++) {
+                                
+                    }
+                }
+            }
         }.bind( this );
 
         RENDER_QUEUE.push(this.render);
@@ -57,10 +74,7 @@ define(["DragHandler", "Component"], function (DragHandler, Component) {
      * Add Component instances to the app and bind associated listeners.
      */
     function _addComponent (component) {
-        this.components.length++;
-        var hash = this.components.length;
-        this.components[hash] = component;
-        component.el.dataset.hash = hash
+        this.components.add(component);
         bindComponentEvents.call(this, component.el);
         this.el.appendChild(component.el);
     }
@@ -142,9 +156,12 @@ define(["DragHandler", "Component"], function (DragHandler, Component) {
         this.ctx.moveTo(this._draworigin[0], this._draworigin[1]);
     };
 
-    App.prototype.drawLine = function (x, y) {
-        this.ctx.lineTo(x-LAYOUT.margin, y-LAYOUT.margin);
-        this.ctx.stroke();
+    App.prototype.drawLine = function (x0, y0, x1, y1) {
+        drawSoftLine(this.ctx, 
+                x0, y0, 
+                x1, y1,
+                10,               // lineWidth
+                70, 80, 95, 0.8); // rgba
     };
 
     App.prototype.streachLine = function(x, y) {

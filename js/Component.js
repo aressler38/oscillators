@@ -22,6 +22,13 @@ define([
         const docfrag = Templates("component");
         config = configurer(COMPONENT_DEFAULTS, config);
         var bool = (config.type === null);
+
+        // Keep track of which components are to this component
+        // and which components to which this is attached.
+        this.connections = { 
+            to: [ ],
+            from: [ ]
+        };
         
         this.el = docfrag.querySelector("div");
         translate3d = translate3d.bind(this.el);
@@ -80,6 +87,11 @@ define([
     Component.prototype.adjust = function (control, value) {
         this.controls[control].set(value);
     } 
+
+    Component.prototype.computeStyle = function () {
+        this._style = window.getComputedStyle(this.el);
+        return this._style;
+    }
 
     return Component;
 });

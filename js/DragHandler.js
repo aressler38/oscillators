@@ -1,4 +1,4 @@
-define(function () {
+define(["utils/getMatrix"], function (getMatrix) {
     /**
      * @constructor
      * @param {Element} el DOM node
@@ -12,16 +12,6 @@ define(function () {
         const dummy = function () {return;}
         if (typeof start !== "function") { start = dummy; }
         if (typeof stop !== "function") { stop = dummy; }
-
-        function getMatrix ( style ) {
-            var buffer = null;
-            if ( style.transform.match(/matrix/) ) {
-                buffer = style.transform.replace(/matrix|\(|\)/g, "");
-            } else {
-                buffer = "matrix(1,0,0,1,0,0)"; // assign an identity matrix
-            }
-            return buffer.split(",");
-        }
 
         el.addEventListener("mousedown", function (event) {
             buffer = window.getComputedStyle(el);
@@ -48,19 +38,19 @@ define(function () {
         });
 
         // mouse 
-        function removeMouseDragListener (event) {
-            const x = event.clientX;
-            const y = event.clientY;
-            document.removeEventListener("mousemove", handleMouseDrag);
-            document.removeEventListener("mouseup", removeMouseDragListener);
-            stop.call(el, x,y,0);
-        }
         function handleMouseDrag (event) {
             const x = event.clientX;
             const y = event.clientY;
             const xrel = offsets[0] + x;
             const yrel = offsets[1] + y;
             callback.call(el, xrel,yrel,0, x, y);
+        }
+        function removeMouseDragListener (event) {
+            const x = event.clientX;
+            const y = event.clientY;
+            document.removeEventListener("mousemove", handleMouseDrag);
+            document.removeEventListener("mouseup", removeMouseDragListener);
+            stop.call(el, x,y,0);
         }
 
         // touches
