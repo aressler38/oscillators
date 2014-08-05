@@ -1,8 +1,9 @@
 define([
     "DragHandler", 
     "Component", 
-    "Components"
-], function (DragHandler, Component, Components) {
+    "Components",
+    "utils/getMatrix"
+], function (DragHandler, Component, Components, getMatrix) {
 
     const RENDER_QUEUE = [];
     const LAYOUT = {
@@ -13,17 +14,18 @@ define([
 
     if ( !window.requestAnimationFrame ) {
         alert ("Error: you're missing window.requestAnimationFrame");
-    } else {
-        window.requestAnimationFrame(step);
-    }
+    } else { window.requestAnimationFrame(step); }
 
     function step ( time ) {
         for (var i=0; i<RENDER_QUEUE.length; i++) {
-            RENDER_QUEUE[i]();
+            if ( RENDER_QUEUE[i].sleep ) {
+
+            } else {
+                RENDER_QUEUE[i].render();
+            }
         }
         window.requestAnimationFrame(step);
     }
-
 
     /**
      * @constructor
@@ -35,6 +37,7 @@ define([
         this.el.appendChild(this.canvas);
         this.components = new Components();
 
+        this.sleep = true;
 
         var renderApp = function (event) {
             var appStyle = window.getComputedStyle(this.el);
@@ -49,25 +52,37 @@ define([
             var i = 0, j=0;
             var len = _components.length;
             var _tolen = _components.length;
+            var c1Matrix = null;
+            var c2Matrix = null;
+            var _style = null;
+            this.canvas.width = this.canvas.width;
             this.components.computeStyles();
             for (; i<len; i++) {
                 // we only need to handle the `to` connections
-                if ( _tolen = _components[i].connections.to.length ) {
+                c1Matrix = getMatrix(_components[i]._style);
+                _tolen = _components[i].connections.to.length 
+                if ( _tolen ) {
                     for (j=0; j<_tolen; j++) {
-                                
+                        _style = this.components[_components[i].connections.to[j]]._style;
+                        c2Matrix = getMatrix(_style);
+                        this.drawLine(c1Matrix[4]+50, c1Matrix[5]+25, c2Matrix[4], c2Matrix[5]+25);
                     }
                 }
             }
         }.bind( this );
 
-        RENDER_QUEUE.push(this.render);
+        RENDER_QUEUE.push(this);
+
+        // ON RENDER START
+        RENDER_QUEUE.push({
+            render: function() { this.sleep=false; RENDER_QUEUE.pop(); }.bind(this)
+        });
 
         // resize the app frame on resize
         window.addEventListener("resize", renderApp);
 
         renderApp(); // render immediately
     }
-
 
     /**
      * @private
@@ -83,22 +98,53 @@ define([
      * @private
      * Handle the component's handles (in/out) DOM elements, and the 
      * component itself.
+     * @param {Element} el reference to the DOM element of the component object.
      */
     function bindComponentEvents (el) {
         var that = this;
         var _in = el.querySelector(".in");
         var out = el.querySelector(".out");
+        var index = null;
         new DragHandler(_in, drag, start, stop);
         new DragHandler(out, drag, start, stop);
+        el.addEventListener("mousedown", wakeup);
+        el.addEventListener("mouseup", sleep);
+        el.addEventListener("touchstart", wakeup);
+        el.addEventListener("touchend", sleep);
+
+        function wakeup () {
+            clearCanvasBackground.call(that);
+            that.sleep = false; 
+        }
+        function sleep () { that.sleep = true; }
         function drag (xrel, yrel, z, x, y) {
-            that.streachLine(x,y);
+            RENDER_QUEUE[index].x1 = x;
+            RENDER_QUEUE[index].y1 = y;
         }
         function start (x, y, z) {
+            clearCanvasBackground.call(that);
+            that.sleep = false;
             that.startLine(x,y);
+            index = RENDER_QUEUE.push({
+                type : "stretchLine",
+                x0 : x,
+                y0 : y,
+                x1 : x,
+                y1 : y,
+                render: function () {
+                    drawSoftLine(that.ctx, 
+                        this.x0-LAYOUT.margin, this.y0-LAYOUT.margin,
+                        this.x1-LAYOUT.margin, this.y1-LAYOUT.margin,
+                        10,               // lineWidth
+                        70, 80, 95, 0.8); // rgba
+                }
+            }) - 1;
         }
         function stop (xrel, yrel, z) {
-            that.ctx.stroke();
+            RENDER_QUEUE.pop();
             that.saveLine(xrel, yrel);
+            saveCanvasAsBackground.call(that);
+            that.sleep = true;
         }
     }   
 
@@ -121,6 +167,13 @@ define([
           ctx.stroke();
           previousAlpha = alpha; 
        }
+    }
+
+    function clearCanvasBackground () {
+        this.canvas.style.background = "ghostwhite";
+    }
+    function saveCanvasAsBackground () {
+        this.canvas.style.background = "url("+this.canvas.toDataURL()+") ghostwhite";
     }
 
     
@@ -164,22 +217,6 @@ define([
                 70, 80, 95, 0.8); // rgba
     };
 
-    App.prototype.streachLine = function(x, y) {
-        this.canvas.width = this.canvas.width;
-        /*
-        this.ctx.moveTo(this._draworigin[0], this._draworigin[1]);
-        this.ctx.lineWidth = 10;
-        this.ctx.lineCap = "round";
-        this.ctx.lineTo(x-LAYOUT.margin, y-LAYOUT.margin);
-        
-        this.ctx.stroke();
-        */
-        drawSoftLine(this.ctx, 
-                this._draworigin[0], this._draworigin[1], 
-                x-LAYOUT.margin, y-LAYOUT.margin, 10,    
-                70, 80, 95, 0.8);
-    }
-
     /**
      */
     App.prototype.saveLine = function (x, y) {
@@ -192,11 +229,15 @@ define([
         this._draworigin[1] = null;
     }
 
-    App.prototype.connect = function (componentX, componentY) {
-        this.state = "blah..."
-            // TODO: save the state of the connected X,Y components
-            // TODO: decide on proper data model;
-        componentX.node.connect(componentY.node);
+    /**
+     * Connect a list of components as in a chain
+     * @param {String} name of component in the components object
+     */
+    App.prototype.connect = function () {
+        for (var i=0; i<arguments.length-1; i++) {
+            this.components[arguments[i]].connections.to.push(arguments[i+1]);
+            this.components[arguments[i]].connect(this.components[arguments[i+1]].node);
+        }
     };
 
 

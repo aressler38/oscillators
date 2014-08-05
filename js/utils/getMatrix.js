@@ -6,7 +6,7 @@ define(function() {
         } else {
             buffer = "matrix(1,0,0,1,0,0)"; // assign an identity matrix
         }
-        return buffer.split(",");
+        return buffer.split(",").map(function(x){return parseInt(x)});
     }
     return getMatrix;
 });

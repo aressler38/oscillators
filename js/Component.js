@@ -30,6 +30,7 @@ define([
             from: [ ]
         };
         
+        this.type = config.type;
         this.el = docfrag.querySelector("div");
         translate3d = translate3d.bind(this.el);
 
@@ -44,7 +45,7 @@ define([
             this.node = audioContext["create"+config.type]();
         }
         else {
-            this.node = null;
+            this.node = audioContext.destination;
         }
         this.el.classList.add(config.type.toLowerCase());
 
@@ -67,6 +68,15 @@ define([
         return this;
     }
 
+    function clearConnections () {
+        while (this.connections.to.length) {
+            this.connections.to[i].pop();
+        }
+        while (this.connections.from.length) {
+            this.connections.from[i].pop();
+        }
+    }
+
     // =========
     // PROTOTYPE
     // =========
@@ -75,6 +85,7 @@ define([
         this.node.connect(node);
     };
     Component.prototype.disconnect = function () {
+        clearConnections.call(this);
         this.node.disconnect();
     };
     Component.prototype.start = function () {
@@ -86,12 +97,12 @@ define([
 
     Component.prototype.adjust = function (control, value) {
         this.controls[control].set(value);
-    } 
+    };
 
     Component.prototype.computeStyle = function () {
         this._style = window.getComputedStyle(this.el);
         return this._style;
-    }
+    };
 
     return Component;
 });

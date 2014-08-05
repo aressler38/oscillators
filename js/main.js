@@ -32,7 +32,9 @@ define([
     app.el.appendChild(tools.el);
     app.add(oscillator, gain, destination);
 
+    app.connect("oscillator_0", "gain_1", "destination_2");
 
     console.debug(window.app=app);
+
     return void 0; //OK!
 });

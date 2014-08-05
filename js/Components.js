@@ -14,7 +14,7 @@ define(function() {
 
     Components.prototype.add = function (component) {
         var hash = "_"+this.length; // TODO: not really a hash
-        this[hash] = component;
+        this[component.type+hash] = component;
         component.el.dataset.hash = hash;
         this.list.push(component);
         this.length++;
