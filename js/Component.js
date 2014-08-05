@@ -41,8 +41,10 @@ define([
         translate3d.apply(this, config.position.concat([0]));
         bool = config.type === "destination" ? true : false;
         if ( !bool ) { // type isn't null
-            config.type=config.type[0].toUpperCase() + config.type.substring(1);
+            config.type = config.type[0].toUpperCase() + config.type.substring(1);
             this.node = audioContext["create"+config.type]();
+            this.node.start && this.node.start(0);
+            createControls.call(this);
         }
         else {
             this.node = audioContext.destination;
@@ -68,6 +70,7 @@ define([
         return this;
     }
 
+    /** @private */
     function clearConnections () {
         while (this.connections.to.length) {
             this.connections.to[i].pop();
@@ -75,6 +78,23 @@ define([
         while (this.connections.from.length) {
             this.connections.from[i].pop();
         }
+    }
+
+    /** @private */
+    function createControls () {
+        var controls = {};
+        if (this.type==="oscillator") {
+            controls.frequency = new Control();
+            controls.frequency.oninput = function (value) {
+                this.node.frequency.value = value;
+            }.bind(this);
+
+        }
+        else if (this.type==="gain") {
+            controls.volume = new Control();
+        }
+
+        this.controls = controls;
     }
 
     // =========

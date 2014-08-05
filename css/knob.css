@@ -1,0 +1,8 @@
+.control-knob {
+    max-width: 45%;
+    min-width: 45%;
+    position: relative;
+}
+.control-setting {
+    max-width: 5ex;
+}

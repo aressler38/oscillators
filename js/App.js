@@ -124,6 +124,16 @@ define([
         this.el.appendChild(component.el);
     }
 
+    App.prototype.select = function (hash) {
+        this.components.select(hash);
+        var component = this.components.selected;
+        this.tools.setToolName(component.type);
+        this.tools.clearControls();
+        for (var ctrl in component.controls) {
+            this.tools.addControl(component.controls[ctrl]);
+        }
+    };
+
     /**
      * @private
      * Handle the component's handles (in/out) DOM elements, and the 
@@ -144,9 +154,8 @@ define([
         el.addEventListener("click", select);
 
         function select (event) {
-            that.components.select(this.dataset.hash);
+            that.select(this.dataset.hash);
         }
-
         function wakeup () {
             clearCanvasBackground.call(that);
             that.sleep = false; 

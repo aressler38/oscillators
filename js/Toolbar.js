@@ -6,7 +6,6 @@ define(["Templates", "configurer"], function(Templates, configurer) {
     };
 
     function hide() {
-
         this.el.classList.add("hide");
     }
 
@@ -15,6 +14,8 @@ define(["Templates", "configurer"], function(Templates, configurer) {
         this.config = configurer(TOOLBAR_DEFAULTS, config);
         var docfrag = Templates("toolbar");
         this.el = docfrag.querySelector("div");
+        this.currentNode = this.el.querySelector(".current-node");
+        this.controls = this.el.querySelector(".tool-control .controls");
 
         if (this.config.hidden) { hide.call(this); }
 
@@ -31,6 +32,27 @@ define(["Templates", "configurer"], function(Templates, configurer) {
             this.el.classList.remove("hide"); 
         } else { this.el.classList.add("hide"); }
         this.config.hidden = !this.config.hidden;
+        return this;
+    };
+
+    Toolbar.prototype.setToolName = function (name) {
+        // clear
+        while (this.currentNode.childNodes.length) {
+            this.currentNode.removeChild(this.currentNode.lastChild);
+        }
+        this.currentNode.appendChild(document.createTextNode(name));
+    };
+
+    Toolbar.prototype.addControl = function (control) {
+        for (var i=0; i<arguments.length; i++) {
+            this.controls.appendChild(arguments[i].el);
+        }
+    };
+
+    Toolbar.prototype.clearControls = function () {
+        while (this.controls.childNodes.length) {
+            this.controls.removeChild(this.controls.lastChild);
+        }
         return this;
     };
 

@@ -1,13 +1,15 @@
 define([
 "text!templates/component.html",
-"text!templates/toolbar.html"
-], function(component, toolbar) {
+"text!templates/toolbar.html",
+"text!templates/knob.html"
+], function(component, toolbar, knob) {
 
     // IMPORT ALL TEMPLATES, WRAP THEM IN <template>
 
     const templates = {
         component: component,
-        toolbar : toolbar
+        toolbar : toolbar,
+        knob    : knob
     };
     const domParser = new DOMParser();
     const templateGroup = document.createElement("div");
@@ -26,7 +28,7 @@ define([
     /**
      * @factory
      */
-    function Templates (name, templateData) {
+    function Templates (name) {
         var template = templateGroup.querySelector("template[name="+name+"]");
         return document.importNode(template.content, true);
     };

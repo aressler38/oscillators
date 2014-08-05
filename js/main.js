@@ -32,6 +32,9 @@ define([
     app.connect("oscillator_0", "gain_1", "destination_2");
 
     console.debug(window.app=app);
+    //console.warn("Warning: stopping in 2...", app.components.oscillator_0.node.stop(2) || "1...")
 
+    app.tools.toggle();
+    app.select(app.components.list[0].el.dataset.hash);
     return void 0; //OK!
 });

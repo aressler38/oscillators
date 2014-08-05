@@ -50,3 +50,9 @@
     right: 0px;
     background: orange;
 }
+
+.toolbar .current-node {
+    padding: 4px;
+    box-shadow: 0px 0px 1px #1e1e1e;
+    display: inline-block;
+}
