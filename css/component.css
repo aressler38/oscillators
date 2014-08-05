@@ -67,3 +67,9 @@
 }
 
 
+.component.selected {
+    background: yellow;
+}
+.component.selected:hover {
+    background: yellow;
+}

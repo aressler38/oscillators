@@ -8,13 +8,11 @@ require.config({
 // now define the `main` module
 define([
     "Component",
-    "Toolbar",
     "App"
-],function(Component, Toolbar, App) {
+],function(Component, App) {
 
-    var body       = document.querySelector("body");
-    var app        = new App();
-    var tools      = new Toolbar();
+    var body = document.querySelector("body");
+    var app  = new App();
 
     var oscillator = new Component({
         type: "oscillator",
@@ -29,7 +27,6 @@ define([
         position: [300, 300]
     });
 
-    app.el.appendChild(tools.el);
     app.add(oscillator, gain, destination);
 
     app.connect("oscillator_0", "gain_1", "destination_2");

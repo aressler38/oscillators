@@ -2,8 +2,9 @@ define([
     "DragHandler", 
     "Component", 
     "Components",
+    "Toolbar",
     "utils/getMatrix"
-], function (DragHandler, Component, Components, getMatrix) {
+], function (DragHandler, Component, Components, Toolbar, getMatrix) {
 
     const RENDER_QUEUE = [];
     const LAYOUT = {
@@ -16,10 +17,16 @@ define([
         alert ("Error: you're missing window.requestAnimationFrame");
     } else { window.requestAnimationFrame(step); }
 
+    /**
+     * @private
+     * @callback
+     * callback for requestAnimationFrame.
+     * Objects in the RENDER_QUEUE must have a `render` method. 
+     */
     function step ( time ) {
         for (var i=0; i<RENDER_QUEUE.length; i++) {
             if ( RENDER_QUEUE[i].sleep ) {
-
+                // sleep
             } else {
                 RENDER_QUEUE[i].render();
             }
@@ -31,22 +38,27 @@ define([
      * @constructor
      */
     function App () {
+        initializeApp.call(this);
+        postInitialize.call(this);
+        return this;
+    }
+
+    /**
+     * @private
+     * Initializer function for App constructor. Context (this) is an instance of App.
+     * Extends the App context.
+     */
+    function initializeApp () {
+        this.tools = new Toolbar();
+        this.sleep = true;
         this.el = document.getElementById("app"); 
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
-        this.el.appendChild(this.canvas);
         this.components = new Components();
-
-        this.sleep = true;
-
-        var renderApp = function (event) {
-            var appStyle = window.getComputedStyle(this.el);
-            this.el.style.width=(window.innerWidth - LAYOUT.marginWide) + "px";
-            this.el.style.height=(window.innerHeight - LAYOUT.marginTall) + "px";
-            this.canvas.width = parseInt(appStyle.width);
-            this.canvas.height = parseInt(appStyle.height);
-        }.bind( this );
-
+        /**
+         * @public
+         * Main rendering function for the App. This is executed in a `requestAnimationFrame`.
+         */
         this.render = function () {
             var _components = this.components.list;
             var i = 0, j=0;
@@ -70,17 +82,35 @@ define([
                 }
             }
         }.bind( this );
+    }
 
+    /**
+     * @private
+     * Does not extend the App context
+     */
+    function postInitialize () {
+        /**
+         * @private 
+         * @callback 
+         * Callback for window's resize event. 
+         */
+        var renderApp = function (event) {
+            var appStyle = window.getComputedStyle(this.el);
+            this.el.style.width=(window.innerWidth - LAYOUT.marginWide) + "px";
+            this.el.style.height=(window.innerHeight - LAYOUT.marginTall) + "px";
+            this.canvas.width = parseInt(appStyle.width);
+            this.canvas.height = parseInt(appStyle.height);
+        }.bind( this );
+        // resize the app frame on resize
+        window.addEventListener("resize", renderApp);
         RENDER_QUEUE.push(this);
 
         // ON RENDER START
         RENDER_QUEUE.push({
             render: function() { this.sleep=false; RENDER_QUEUE.pop(); }.bind(this)
         });
-
-        // resize the app frame on resize
-        window.addEventListener("resize", renderApp);
-
+        this.el.appendChild(this.canvas);
+        this.el.appendChild(this.tools.el);
         renderApp(); // render immediately
     }
 
@@ -111,6 +141,11 @@ define([
         el.addEventListener("mouseup", sleep);
         el.addEventListener("touchstart", wakeup);
         el.addEventListener("touchend", sleep);
+        el.addEventListener("click", select);
+
+        function select (event) {
+            that.components.select(this.dataset.hash);
+        }
 
         function wakeup () {
             clearCanvasBackground.call(that);
