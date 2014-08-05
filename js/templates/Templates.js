@@ -1,15 +1,15 @@
 define([
 "text!templates/component.html",
 "text!templates/toolbar.html",
-"text!templates/knob.html"
-], function(component, toolbar, knob) {
+"text!templates/slider.html"
+], function(component, toolbar, slider) {
 
     // IMPORT ALL TEMPLATES, WRAP THEM IN <template>
 
     const templates = {
         component: component,
         toolbar : toolbar,
-        knob    : knob
+        slider  : slider
     };
     const domParser = new DOMParser();
     const templateGroup = document.createElement("div");
@@ -32,9 +32,6 @@ define([
         var template = templateGroup.querySelector("template[name="+name+"]");
         return document.importNode(template.content, true);
     };
-
-    /** @deprecated */
-    Templates.names = (function() { var n=[]; for (var t in templates) n.push(t); return n; })();
 
     return Templates;
 

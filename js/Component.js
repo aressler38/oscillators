@@ -84,14 +84,28 @@ define([
     function createControls () {
         var controls = {};
         if (this.type==="oscillator") {
-            controls.frequency = new Control();
+            controls.frequency = new Control({
+                min : 0,
+                max : 880,
+                value: this.node.frequency.value,
+                step: 10
+            });
             controls.frequency.oninput = function (value) {
                 this.node.frequency.value = value;
             }.bind(this);
 
         }
         else if (this.type==="gain") {
-            controls.volume = new Control();
+            controls.volume = new Control({
+                type: "slider",
+                min: 0,
+                max: 1,
+                step: 0.1,
+                value: this.node.gain.value
+            });
+            controls.volume.oninput = function (value) {
+                this.node.gain.value = value;
+            }.bind(this);
         }
 
         this.controls = controls;

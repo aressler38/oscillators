@@ -1,8 +1,11 @@
-.control-knob {
-    max-width: 45%;
-    min-width: 45%;
+.control-slider {
     position: relative;
 }
-.control-setting {
-    max-width: 5ex;
+.control-setting,
+.slider-value {
+    display:inline-block;
+    max-width: 10ex;
+}
+.control-slider .details > div {
+    min-width: 24ex;
 }
