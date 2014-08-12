@@ -6,7 +6,6 @@ define(function () {
     }
     else {
         var ctx = window.AudioContext ? new window.AudioContext() : new window.webkitAudioContext() ;
-        console.debug("window.a=audioContext", (window.a = ctx) );
         return ( ctx );
     }
 });

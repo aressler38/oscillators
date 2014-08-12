@@ -62,7 +62,7 @@ define([
          * Main rendering function for the App. This is executed in a `requestAnimationFrame`.
          */
         this.render = function () {
-            console.debug("render");
+            //console.debug("render");
             var _cList = this.components.list;
             var i = 0, j=0;
             var len = _cList.length;
@@ -272,8 +272,11 @@ define([
                 pos = that.components.list[i].getPos();
                 delta = dist(x1, y1, pos[0], pos[1]);
                 // I'd normally cache the list, but the lookup will only happen if delta < radius
-                if ( delta < radius && component !== that.components.list[i] ) {
-                    console.debug("WITHIN RADIUS OF", that.components.list[i]);
+                if ( delta < radius && 
+                     component !== that.components.list[i] &&
+                     that.components.list[i].type !== "oscillator"
+                ) {
+                    //console.debug("WITHIN RADIUS OF", that.components.list[i]);
                     // detect in/out order
                     if ( out ) {
                         component.connect(that.components.list[i]);
