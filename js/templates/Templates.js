@@ -1,15 +1,17 @@
 define([
 "text!templates/component.html",
 "text!templates/toolbar.html",
-"text!templates/slider.html"
-], function(component, toolbar, slider) {
+"text!templates/slider.html",
+"text!templates/connect.html"
+], function(component, toolbar, slider, connect) {
 
     // IMPORT ALL TEMPLATES, WRAP THEM IN <template>
 
     const templates = {
         component: component,
         toolbar : toolbar,
-        slider  : slider
+        slider  : slider,
+        connect : connect
     };
     const domParser = new DOMParser();
     const templateGroup = document.createElement("div");

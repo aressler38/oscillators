@@ -3,8 +3,9 @@ define([
     "configurer",
     "audioContext",
     "DragHandler",
-    "Control"
-], function (Templates, configurer, audioContext, DragHandler, Control) {
+    "Control",
+    "utils/getMatrix"
+], function (Templates, configurer, audioContext, DragHandler, Control, getMatrix) {
 
     const COMPONENT_DEFAULTS = {
         el: null,
@@ -99,9 +100,12 @@ define([
             controls.volume = new Control({
                 type: "slider",
                 min: 0,
-                max: 1,
-                step: 0.1,
-                value: this.node.gain.value
+                max: 10,
+                step: 1,
+                value: this.node.gain.value,
+                filter: function (value) {
+                    return value * 0.1;
+                }
             });
             controls.volume.oninput = function (value) {
                 this.node.gain.value = value;
@@ -115,8 +119,10 @@ define([
     // PROTOTYPE
     // =========
 
-    Component.prototype.connect = function (node) {
-        this.node.connect(node);
+    /** @param {Component} component */
+    Component.prototype.connect = function (component) {
+        this.node.connect(component.node);
+        this.connections.to.push(component);
     };
     Component.prototype.disconnect = function () {
         clearConnections.call(this);
@@ -128,15 +134,20 @@ define([
     Component.prototype.stop = function () {
         this.node.stop();
     };
-
-    Component.prototype.adjust = function (control, value) {
-        this.controls[control].set(value);
-    };
-
     Component.prototype.computeStyle = function () {
         this._style = window.getComputedStyle(this.el);
         return this._style;
     };
+    Component.prototype.getPos = function () {
+        const offset = 25; // with offset... shouldn't be hard coded like this        
+        const matrix = getMatrix(window.getComputedStyle(this.el));
+        return [ matrix[4]+offset, matrix[5]+offset ];
+    };
+    /** @deprecated */
+    Component.prototype.adjust = function (control, value) {
+        this.controls[control].set(value);
+    };
+
 
     return Component;
 });

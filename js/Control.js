@@ -9,7 +9,8 @@ define([
         value: 110,
         min: 0,
         max: 1,
-        step: 1
+        step: 1,
+        filter: function (value) { return value; }  // default identity function
     };
    
     /**
@@ -31,8 +32,9 @@ define([
 
         // proxy to prototype method for user access
         slider.addEventListener("input", function (event) {
-            that.oninput(this.value);
-            text.value = this.value;
+            var filter = config.filter;
+            that.oninput(filter(this.value));
+            text.value = filter(this.value);
         });
 
         var min = this.el.querySelector(".control-setting.min");

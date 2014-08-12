@@ -29,7 +29,7 @@ define([
 
     app.add(oscillator, gain, destination);
 
-    app.connect("oscillator_0", "gain_1", "destination_2");
+    app.connect("oscillator_0", "gain_1"); //, "destination_2");
 
     console.debug(window.app=app);
     //console.warn("Warning: stopping in 2...", app.components.oscillator_0.node.stop(2) || "1...")
