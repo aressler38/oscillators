@@ -64,8 +64,8 @@ define(["utils/getMatrix"], function (getMatrix) {
         function removeTouchDragListener (event) {
             document.removeEventListener("touchmove", handleTouchDrag);
             document.removeEventListener("touchend", removeTouchDragListener);
-            const x = offsets[0] + event.changedTouches[0].clientX;
-            const y = offsets[0] + event.changedTouches[0].clientY;
+            const x = event.changedTouches[0].clientX;
+            const y = event.changedTouches[0].clientY;
             stop.call(el, x,y,0);
         }
 
