@@ -121,8 +121,8 @@ define([
 
     /** @param {Component} component */
     Component.prototype.connect = function (component) {
-        this.node.connect(component.node);
         this.connections.to.push(component);
+        this.node.connect(component.node);
     };
     Component.prototype.disconnect = function () {
         clearConnections.call(this);

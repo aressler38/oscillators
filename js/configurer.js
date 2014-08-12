@@ -1,7 +1,13 @@
 define(["utils/extend"], function (extend) {
-    return function configurer (defaults, user) {
-        extend(defaults, user);
-        return extend(this, defaults);
+    /** 
+     * @param {object} context DEPRECATED 
+     */
+    return function configurer (defaults, user, context) {
+        var configuration = extend(defaults, user);
+        if (context) {  
+            configuration = extend(context, configuration);
+        }
+        return configuration;
     };
 });
 

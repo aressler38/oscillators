@@ -338,7 +338,6 @@ define([
      */
     App.prototype.connect = function () {
         for (var i=0; i<arguments.length-1; i++) {
-            console.log(arguments[i]);
             this.components[arguments[i]].connect(this.components[arguments[i+1]]);
         }
     };
