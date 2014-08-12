@@ -56,3 +56,30 @@
     box-shadow: 0px 0px 1px #1e1e1e;
     display: inline-block;
 }
+
+.toolbar .general-tools {
+    position: relative;
+    margin: 20% auto;
+    box-shadow: 0px 0px 2px 1px #0e0e0e;
+    padding: 5px;
+    z-index: 1;
+}
+.general-tools > div {
+    margin: 10px auto;
+    padding: 4px;
+    box-shadow: 0px 0px 1px 0px #0e0e0e;
+    cursor: pointer;
+}
+.general-tools > div:active {
+    background: yellow;
+}
+.toolbar .connection {
+    margin: 10px auto;
+    padding: 4px;
+    box-shadow: 0px 0px 1px 0px #0e0e0e;
+    cursor: pointer;
+    z-index:1;
+}
+.toolbar .connection:active {
+    background: yellow;
+}
