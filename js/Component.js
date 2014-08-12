@@ -4,8 +4,9 @@ define([
     "audioContext",
     "DragHandler",
     "Control",
+    "Button",
     "utils/getMatrix"
-], function (Templates, configurer, audioContext, DragHandler, Control, getMatrix) {
+], function (Templates, configurer, audioContext, DragHandler, Control, Button, getMatrix) {
 
     const COMPONENT_DEFAULTS = {
         el: null,
@@ -16,7 +17,7 @@ define([
 
     /**
      * @constructor
-     * Base class for components, sets up the base template and  
+     * Base class for components, sets up the base template and
      */
     function Component (config) {
         const that = this;
@@ -26,11 +27,11 @@ define([
 
         // Keep track of which components are to this component
         // and which components to which this is attached.
-        this.connections = { 
+        this.connections = {
             to: [ ],
             from: [ ]
         };
-        
+
         this.type = config.type;
         this.el = docfrag.querySelector("div");
         translate3d = translate3d.bind(this.el);
@@ -67,22 +68,16 @@ define([
         function stopEvent (event) {
             event.stopPropagation();
         }
-        
+
         return this;
     }
 
-    /** @private */
-    function clearConnections () {
-        while (this.connections.to.length) {
-            this.connections.to[i].pop();
-        }
-        while (this.connections.from.length) {
-            this.connections.from[i].pop();
-        }
-    }
-
-    /** @private */
+    /**
+     * Create UI controls and attach them to the component instance
+     * @private
+     */
     function createControls () {
+        var that = this;
         var controls = {};
         if (this.type==="oscillator") {
             controls.frequency = new Control({
@@ -95,8 +90,7 @@ define([
                 this.node.frequency.value = value;
             }.bind(this);
 
-        }
-        else if (this.type==="gain") {
+        } else if (this.type==="gain") {
             controls.volume = new Control({
                 type: "slider",
                 min: 0,
@@ -112,6 +106,14 @@ define([
             }.bind(this);
         }
 
+        // TODO: this disconnect button should be a sub class of Control
+        //       this isn't good OO right here
+        controls.disconnectButton = new Button({classList: "connection"});
+        controls.disconnectButton.onclick = function (event) {
+            that.disconnect();
+        };
+        controls.disconnectButton.el.appendChild(document.createTextNode("Disconnect AudioNode"));
+
         this.controls = controls;
     }
 
@@ -125,8 +127,8 @@ define([
         this.node.connect(component.node);
     };
     Component.prototype.disconnect = function () {
-        clearConnections.call(this);
-        this.node.disconnect();
+        while ( this.connections.to.pop() !== undefined );  // disconnect graph nodes
+        this.node.disconnect(); // disconnect AudioNode
     };
     Component.prototype.start = function () {
         this.node.start();
@@ -139,7 +141,7 @@ define([
         return this._style;
     };
     Component.prototype.getPos = function () {
-        const offset = 25; // with offset... shouldn't be hard coded like this        
+        const offset = 25; // with offset... shouldn't be hard coded like this
         const matrix = getMatrix(window.getComputedStyle(this.el));
         return [ matrix[4]+offset, matrix[5]+offset ];
     };

@@ -1,6 +1,6 @@
 define([
-    "DragHandler", 
-    "Component", 
+    "DragHandler",
+    "Component",
     "Components",
     "Toolbar",
     "utils/getMatrix"
@@ -10,8 +10,8 @@ define([
     // class would make sense for use in other projects...
     const RENDER_QUEUE = [];
     const LAYOUT = {
-        margin: 10, 
-        marginWide: 20, 
+        margin: 10,
+        marginWide: 20,
         marginTall: 20
     };
 
@@ -23,7 +23,7 @@ define([
      * @private
      * @callback
      * callback for requestAnimationFrame.
-     * Objects in the RENDER_QUEUE must have a `render` method. 
+     * Objects in the RENDER_QUEUE must have a `render` method.
      */
     function step ( time ) {
         for (var i=0; i<RENDER_QUEUE.length; i++) {
@@ -53,7 +53,7 @@ define([
     function initializeApp () {
         this.tools = new Toolbar();
         this.sleep = true;
-        this.el = document.getElementById("app"); 
+        this.el = document.getElementById("app");
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
         this.components = new Components();
@@ -62,6 +62,7 @@ define([
          * Main rendering function for the App. This is executed in a `requestAnimationFrame`.
          */
         this.render = function () {
+            console.debug("render");
             var _cList = this.components.list;
             var i = 0, j=0;
             var len = _cList.length;
@@ -74,7 +75,7 @@ define([
             for (; i<len; i++) {
                 // we only need to handle the `to` connections
                 c1Matrix = getMatrix(_cList[i]._style);
-                _tolen = _cList[i].connections.to.length 
+                _tolen = _cList[i].connections.to.length
                 if ( _tolen ) {
                     for (j=0; j<_tolen; j++) {
                         _style = _cList[i].connections.to[j]._style;
@@ -91,10 +92,11 @@ define([
      * Does not extend the App context
      */
     function postInitialize () {
+        var that = this;
         /**
-         * @private 
-         * @callback 
-         * Callback for window's resize event. 
+         * @private
+         * @callback
+         * Callback for window's resize event.
          */
         var renderApp = function (event) {
             var appStyle = window.getComputedStyle(this.el);
@@ -108,12 +110,45 @@ define([
         RENDER_QUEUE.push(this);
 
         // ON RENDER START
-        RENDER_QUEUE.push({
-            render: function() { this.sleep=false; RENDER_QUEUE.pop(); }.bind(this)
-        });
+        renderOneTime.call(this);
+
         this.el.appendChild(this.canvas);
         this.el.appendChild(this.tools.el);
+        this.tools.el.addEventListener("click", renderOneTime.bind(this));
+
+        this.tools.el.querySelector(".add-component.gain").addEventListener("click", function () {
+            var gain = new Component({
+                type: "gain",
+                position: [50, 75]
+            });
+            that.add(gain);
+        });
+        this.tools.el.querySelector(".add-component.oscillator").addEventListener("click", function () {
+            var oscillator = new Component({
+                type: "oscillator",
+                position: [10, 10]
+            });
+            that.add(oscillator);
+        });
+
         renderApp(); // render immediately
+    }
+
+    /**
+     * @private
+     * @context varies, use the .call method to execute this on a renderable object (has render method).
+     * Used for app when 'snapping' the line to a component or clearing the canvas.
+     */
+    function renderOneTime (callback) {
+        var that = this;
+        this.sleep = false;
+        RENDER_QUEUE.push({
+            render: function() {
+                that.sleep=!that.sleep;
+                RENDER_QUEUE.pop();
+                if ( typeof callback === "function" ) { callback(); }
+            }.bind(this)
+        });
     }
 
     /**
@@ -138,7 +173,7 @@ define([
 
     /**
      * @private
-     * Handle the component's handles (in/out) DOM elements, and the 
+     * Handle the component's handles (in/out) DOM elements, and the
      * component itself.
      * @param {Element} el reference to the DOM element of the component object.
      */
@@ -167,10 +202,10 @@ define([
         }
         function wakeup () {
             clearCanvasBackground.call(that);
-            that.sleep = false; 
+            that.sleep = false;
         }
-        function sleep () { 
-            that.sleep = true; 
+        function sleep () {
+            that.sleep = true;
         }
         function drag (xrel, yrel, z, x, y) {
             RENDER_QUEUE[index].x1 = x;
@@ -178,8 +213,8 @@ define([
         }
         /**
          * DragHandler callback
-         * @callback 
-         * @context Element 
+         * @callback
+         * @context Element
          */
         function start (x, y, z) {
             dragFromOutput = this.classList.contains("out");
@@ -193,7 +228,7 @@ define([
                 x1 : x,
                 y1 : y,
                 render: function () {
-                    drawSoftLine(that.ctx, 
+                    drawSoftLine(that.ctx,
                         this.x0-LAYOUT.margin, this.y0-LAYOUT.margin,
                         this.x1-LAYOUT.margin, this.y1-LAYOUT.margin,
                         10,               // lineWidth
@@ -204,36 +239,38 @@ define([
         /**
          * DragHandler callback
          * @callback
-         * @context Element 
-         */ 
+         * @context Element
+         */
         function stop (x, y, z) {
             RENDER_QUEUE.pop();
             that.saveLine(x, y);
-            saveCanvasAsBackground.call(that);
-            sleep();
-            detectNeighbor(that.components.selected, x, y, dragFromOutput);
+            if ( detectNeighbor(that.components.selected, x, y, dragFromOutput) ) {
+            }
+            renderOneTime.call(that, function() {
+            //    saveCanvasAsBackground.call(that);
+            });
         }
 
         /**
          * linear search:
-         * Iterate over the list of components and find the component that 
+         * Iterate over the list of components and find the component that
          * is within a certain e-disk from where the user mouseup'd or released
          * their finger/stylus.
          * @param {Component} component currently selected
          * @param {number} x1 clientX of line drawn
          * @param {number} y1 clientY of line drawn
          * @param {boolean} out will only be `true` if the user started dragging from the output of `component`
+         * @return {boolean} outcome of detection: `true` if dragged line is within the e-disk.
          */
         function detectNeighbor (component, x1, y1, out) {
             const radius = 75; // threshold of drop detection
             const len = that.components.list.length;
-            var delta = null; 
+            var delta = null;
             var pos = null;
             var _c = null;
             for (var i=0; i<len; i++) {
                 pos = that.components.list[i].getPos();
                 delta = dist(x1, y1, pos[0], pos[1]);
-                console.log(x1,y1, delta);
                 // I'd normally cache the list, but the lookup will only happen if delta < radius
                 if ( delta < radius && component !== that.components.list[i] ) {
                     console.debug("WITHIN RADIUS OF", that.components.list[i]);
@@ -243,9 +280,10 @@ define([
                     } else {
                         that.components.list[i].connect(component);
                     }
-                    break;
+                    return true;
                 }
             }
+            return false;
         }
 
         // write dist function for x1,y1 to x2,y2...
@@ -271,7 +309,7 @@ define([
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
           ctx.stroke();
-          previousAlpha = alpha; 
+          previousAlpha = alpha;
        }
     }
 
@@ -282,11 +320,11 @@ define([
         this.canvas.style.background = "url("+this.canvas.toDataURL()+") ghostwhite";
     }
 
-    
+
     // =========
     // PROTOTYPE
     // =========
-    
+
     /**
      * @method
      * append components to the app
@@ -311,8 +349,8 @@ define([
     };
 
     App.prototype.drawLine = function (x0, y0, x1, y1) {
-        drawSoftLine(this.ctx, 
-                x0, y0, 
+        drawSoftLine(this.ctx,
+                x0, y0,
                 x1, y1,
                 10,               // lineWidth
                 70, 80, 95, 0.8); // rgba
@@ -333,7 +371,7 @@ define([
      * @param {String} name of component in the components object
      * @example
      * note: 'x->y' means x is connected to y
-     * connect("gain", "destination");  ==>   'gain'->'destination' 
+     * connect("gain", "destination");  ==>   'gain'->'destination'
      * connect("oscillator", "gain", "destination"  ==> 'oscillator'->'gain'->'destination'
      */
     App.prototype.connect = function () {

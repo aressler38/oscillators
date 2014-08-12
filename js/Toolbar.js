@@ -35,6 +35,10 @@ define(["Templates", "configurer"], function(Templates, configurer) {
         return this;
     };
 
+    /**
+     * @method
+     * Set the header title of the tool bar
+     */
     Toolbar.prototype.setToolName = function (name) {
         // clear
         while (this.currentNode.childNodes.length) {
