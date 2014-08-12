@@ -3,20 +3,20 @@ define([
     "configurer"
 ],function (Templates, configurer) {
 
-    const CONTROL_DEFAULTS = {
-        type: "frequency",
-        template: "slider",
-        value: 110,
-        min: 0,
-        max: 1,
-        step: 1,
-        filter: function (value) { return value; }  // default identity function
-    };
    
     /**
      * @constructor
      */
     function Control (config) {
+        const CONTROL_DEFAULTS = {
+            type: "frequency",
+            template: "slider",
+            value: 110,
+            min: 0,
+            max: 1,
+            step: 1,
+            filter: function (value) { return value; }  // default identity function
+        };
         var that = this;
         config = configurer(CONTROL_DEFAULTS, config);
         const docfrag = Templates(config.template);
