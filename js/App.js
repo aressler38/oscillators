@@ -148,18 +148,21 @@ define([
         var _out = el.querySelector(".out");
         var dragFromOutput = null; // shall represent user's selection of either .in or .out elements.
         var index = null;
-        _in.addEventListener("mousedown", select);
-        _in.addEventListener("touchstart", select);
-        _out.addEventListener("mousedown", select);
-        _out.addEventListener("touchstart", select);
+        _in.addEventListener("mousedown", selectParent);
+        _in.addEventListener("touchstart", selectParent);
+        _out.addEventListener("mousedown", selectParent);
+        _out.addEventListener("touchstart", selectParent);
         new DragHandler(_in, drag, start, stop);
         new DragHandler(_out, drag, start, stop);
+        el.addEventListener("click", function() {
+            that.select(this.dataset.hash);
+        });
         el.addEventListener("mousedown", wakeup);
         el.addEventListener("mouseup", sleep);
         el.addEventListener("touchstart", wakeup);
         el.addEventListener("touchend", sleep);
 
-        function select (event) {
+        function selectParent (event) {
             that.select(this.parentElement.dataset.hash);
         }
         function wakeup () {
